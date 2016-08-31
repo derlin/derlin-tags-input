@@ -14,7 +14,7 @@ an input especially for tags
     <template>
         <style>
             :host {
-                display: block;
+                display: inline-block;
                 padding: 4px;
             }
 
@@ -36,14 +36,15 @@ an input especially for tags
             .group {
                 position: relative;
                 margin-bottom: 45px;
+                min-width: 200px;
                 margin-top: 20px; /* space for the label */
+                display: inline-block;
             }
 
             #inputGroup {
                 font-size: 18px;
                 padding: 10px 10px 10px 5px;
                 display: block;
-                width: 300px;
                 border: none;
                 border-bottom: 1px solid #757575;
             }
@@ -79,7 +80,6 @@ an input especially for tags
             .bar {
                 position: relative;
                 display: block;
-                width: 300px;
             }
 
             .bar:before, .bar:after {
@@ -112,9 +112,9 @@ an input especially for tags
             .highlight {
                 position: absolute;
                 height: 60%;
-                width: 100px;
                 top: 25%;
                 left: 0;
+                right: 0;
                 pointer-events: none;
                 opacity: 0.5;
             }
@@ -164,9 +164,9 @@ an input especially for tags
                         stop-keyboard-event-propagation="true"
                         on-keys-pressed="_add"></iron-a11y-keys>
 
-        <polymer-keydown code="8" on-keydown="_deleteLast"/>
+        <polymer-keydown code="8" on-keydown="_deleteLast" />
 
-        <div on-tap="_focus" class="group">
+        <div on-tap="_focus" class="group" on-down="_mouseDown" on-up="_mouseUp">
             <div id="inputGroup">
                 <template is="dom-repeat" items="{{tags}}" as="tag">
                     <span class="tag">{{tag}}
@@ -209,7 +209,9 @@ an input especially for tags
                     type: Boolean,
                     computed: 'hasTags(tags.*)',
                     reflectToAttribute: true
-                }
+                },
+
+                _clickInProgress: Boolean
             },
 
             _delete: function( evt ){
@@ -218,10 +220,11 @@ an input especially for tags
             },
 
             _focus: function( evt ){
-                console.log(evt);
+                //console.log(evt);
                 // do nothing if already focused or the click targeted a span.tag
-                if(!this.focused && evt.path[0] == this.$.inputGroup)
-                    this.$.input.focus();
+                //if(!this.focused && evt.path[0] == this.$.inputGroup)
+                this.$.input.focus();
+
             },
 
             _deleteLast: function( evt ){
@@ -230,8 +233,22 @@ an input especially for tags
                 }
             },
 
+            _mouseDown: function(evt){
+                console.log("click");
+                this._clickInProgress = true;
+
+            },
+
+            _mouseUp: function(evt){
+                console.log("un-click");
+                this._clickInProgress = false;
+
+            },
+
             _updateFocus: function(evt){
-                this.focused = evt.type == "focus";
+                console.log(evt.type);
+                if(evt.type == "focus") this.focused = true;
+                else if(!this._clickInProgress) this.focused = false;
             },
 
             hasTags: function(){
