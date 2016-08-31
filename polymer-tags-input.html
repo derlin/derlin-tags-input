@@ -30,6 +30,133 @@ an input especially for tags
                 width: auto;
                 display: inline-block;
             }
+
+            /* inspired from: https://codepen.io/sevilayha/pen/IdGKH  */
+
+            .group {
+                position: relative;
+                margin-bottom: 45px;
+                margin-top: 20px; /* space for the label */
+            }
+
+            #inputGroup {
+                font-size: 18px;
+                padding: 10px 10px 10px 5px;
+                display: block;
+                width: 300px;
+                border: none;
+                border-bottom: 1px solid #757575;
+            }
+
+            #input:focus {
+                outline: none;
+            }
+
+            /* LABEL ======================================= */
+
+            .label {
+                color: #999;
+                font-size: 18px;
+                font-weight: normal;
+                position: absolute;
+                pointer-events: none;
+                left: 5px;
+                top: 10px;
+                transition: 0.2s ease all;
+                -moz-transition: 0.2s ease all;
+                -webkit-transition: 0.2s ease all;
+            }
+
+            /* active state */
+            :host[focused] .label, :host[with-tags] .label {
+                top: -20px;
+                font-size: 14px;
+                color: #5264AE;
+            }
+
+            /* BOTTOM BARS ================================= */
+
+            .bar {
+                position: relative;
+                display: block;
+                width: 300px;
+            }
+
+            .bar:before, .bar:after {
+                content: '';
+                height: 2px;
+                width: 0;
+                bottom: 1px;
+                position: absolute;
+                background: #5264AE;
+                transition: 0.2s ease all;
+                -moz-transition: 0.2s ease all;
+                -webkit-transition: 0.2s ease all;
+            }
+
+            .bar:before {
+                left: 50%;
+            }
+
+            .bar:after {
+                right: 50%;
+            }
+
+            /* active state */
+            :host[focused] #inputGroup ~ .bar:before, :host[focused] #inputGroup ~ .bar:after {
+                width: 50%;
+            }
+
+            /* HIGHLIGHTER ================================== */
+
+            .highlight {
+                position: absolute;
+                height: 60%;
+                width: 100px;
+                top: 25%;
+                left: 0;
+                pointer-events: none;
+                opacity: 0.5;
+            }
+
+            /* active state */
+            :host[focused] #inputGroup ~ .highlight {
+                -webkit-animation: inputHighlighter 0.3s ease;
+                -moz-animation: inputHighlighter 0.3s ease;
+                animation: inputHighlighter 0.3s ease;
+            }
+
+            /* ANIMATIONS ================ */
+
+            @-webkit-keyframes inputHighlighter {
+                from {
+                    background: #5264AE;
+                }
+                to {
+                    width: 0;
+                    background: transparent;
+                }
+            }
+
+            @-moz-keyframes inputHighlighter {
+                from {
+                    background: #5264AE;
+                }
+                to {
+                    width: 0;
+                    background: transparent;
+                }
+            }
+
+            @keyframes inputHighlighter {
+                from {
+                    background: #5264AE;
+                }
+                to {
+                    width: 0;
+                    background: transparent;
+                }
+            }
         </style>
 
         <iron-a11y-keys id="a11y" target="[[target]]"
@@ -37,17 +164,21 @@ an input especially for tags
                         stop-keyboard-event-propagation="true"
                         on-keys-pressed="_add"></iron-a11y-keys>
 
-        <polymer-keydown code="8" on-keydown="_deleteLast" />
+        <polymer-keydown code="8" on-keydown="_deleteLast"/>
 
-        <div on-tap="_focus">
-            <template is="dom-repeat" items="{{tags}}" as="tag">
+        <div on-tap="_focus" class="group">
+            <div id="inputGroup">
+                <template is="dom-repeat" items="{{tags}}" as="tag">
+                    <span class="tag">{{tag}}
+                        <iron-icon icon="clear" on-tap="_delete"></iron-icon>
+                    </span>
+                </template>
+                <div id="input" contenteditable="true" on-focus="_updateFocus" on-blur="_updateFocus"></div>
+            </div>
 
-        <span class="tag">
-          {{tag}}
-          <iron-icon icon="clear" on-tap="_delete"></iron-icon>
-            </span>
-            </template>
-            <div id="input" contenteditable="true"></div>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <span class="label">Name</span>
         </div>
 
     </template>
@@ -67,6 +198,17 @@ an input especially for tags
                 delimiter: {
                     type : String,
                     value: ","
+                },
+
+                focused: {
+                    type: Boolean,
+                    reflectToAttribute: true
+                },
+
+                withTags: {
+                    type: Boolean,
+                    computed: 'hasTags(tags.*)',
+                    reflectToAttribute: true
                 }
             },
 
@@ -76,15 +218,24 @@ an input especially for tags
             },
 
             _focus: function( evt ){
-                console.log( "on tap", evt );
-                this.$.input.focus();
+                console.log(evt);
+                // do nothing if already focused or the click targeted a span.tag
+                if(!this.focused && evt.path[0] == this.$.inputGroup)
+                    this.$.input.focus();
             },
 
-            _deleteLast: function(evt){
-              console.log("keypress", evt);
-                if(event.keyCode == 8 && !this.$.input.innerText){
-                     this.pop('tags');
+            _deleteLast: function( evt ){
+                if( event.keyCode == 8 && !this.$.input.innerText ){
+                    this.pop( 'tags' );
                 }
+            },
+
+            _updateFocus: function(evt){
+                this.focused = evt.type == "focus";
+            },
+
+            hasTags: function(){
+                return this.tags && this.tags.length > 0;
             },
 
             _add: function( evt, detail ){
