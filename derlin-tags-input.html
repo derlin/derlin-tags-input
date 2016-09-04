@@ -1,10 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
-<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link ref="import" href="../paper-icon-button/paper-icon-button.html">
 <link ref="import" href="../polymer-keydown/polymer-keydown.html">
-<link ref="import" href="../paper-styles/color.html">
-
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
 <!--
 `derlin-tags-input` is an input element especially made for tags.
 
@@ -20,18 +19,19 @@ for styling:
 Custom property | Description | Default
 ----------------|-------------|----------
 `--derlin-tags-highlight-color` | Color of the line when the element is focused and of the floating label |
-`--paper-indigo-500`
+`#3f51b5`
 `--derlin-tags` | Mixin applied to tag spans | `{}`
 `--derlin-tags-bottom-line-color` | color of the bottom line of the input | #757575
 
 @demo demo/index.html
 -->
 
+
 <dom-module id="derlin-tags-input">
     <template>
         <style>
             :host {
-                --highlight-color: var(--derlin-tags-highlight-color, var(--paper-indigo-500));
+                --highlight-color: var(--derlin-tags-highlight-color, #3f51b5);
                 display: block;
                 padding: 4px;
                 width: 100%;
@@ -58,7 +58,7 @@ Custom property | Description | Default
                 --iron-icon-height: 17px;
                 --iron-icon-width: 17px;
                 cursor: pointer;
-                color: var(--paper-grey-900);
+                color: #757575;
             }
 
             :host[focused] .tag iron-icon {
@@ -335,8 +335,8 @@ Custom property | Description | Default
              * @return {boolean} True if the tag was added, false if it already existed.
              */
             add: function(tag){
-                tag = tag.trim().toLowerCase();
-                if(this.tags.indexOf( tag ) == -1 ){
+                tag = tag.replace( new RegExp(this.delimiter, 'g'), "" ).trim().toLowerCase();
+                if(tag && this.tags.indexOf( tag ) == -1 ){
                     this.push( 'tags', tag );
                     return true;
                 }
@@ -379,22 +379,20 @@ Custom property | Description | Default
              * Add a tag (if it does not already exist) and clear the input.
              */
             _add: function( evt, detail ){
-                console.log( "add", evt );
-
                 detail.keyboardEvent.preventDefault();
 
                 // remove the delimiter from the tag
-                var newTag = this.$.input.innerText.replace( this.delimiter, "" );
-                console.log( "newtag", newTag );
-                this.add(newTag);
-                this.$.input.innerText = "";
+                var newTag = this.$.input.innerText;
+                if(newTag){
+                    this.add( newTag );
+                    this.$.input.innerText = "";
+                }
             },
 
             /*
              * Called when a tag clear icon is clicked. Remove the tag from the tags array.
              */
             _delete: function( evt ){
-                console.log( "delete", evt );
                 this.delete( null, evt.model.index );
             },
 
@@ -428,9 +426,14 @@ Custom property | Description | Default
              * (_clickInProgress), to avoid focus/blur/focus sequence (weird visual effect).
              */
             _updateFocus: function(evt){
-                console.log(evt.type);
-                if(evt.type == "focus") this.focused = true;
-                else if(!this._clickInProgress) this.focused = false;
+                if(evt.type == "focus"){
+                    this.focused = true;
+                }else if(!this._clickInProgress){
+                    this.focused = false;
+                    // add tag on blur if the input area is not empty
+                    this.add(this.$.input.innerText);
+                    this.$.input.innerText = "";
+                }
             },
 
             /*
