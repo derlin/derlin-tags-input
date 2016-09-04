@@ -3,8 +3,10 @@
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
 <link ref="import" href="../polymer-keydown/polymer-keydown.html">
+<link ref="import" href="../paper-styles/color.html">
+
 <!--
-`polymer-tags-input` is an input element especially made for tags.
+`derlin-tags-input` is an input element especially made for tags.
 
 It is inspired by the <a href="https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/">bootstrap tags
 input</a> and such.
@@ -12,22 +14,24 @@ input</a> and such.
 
 ### Styling
 
-`<polymer-tags-input>` provides the following custom properties and mixins
+`<derlin-tags-input>` provides the following custom properties and mixins
 for styling:
 
 Custom property | Description | Default
 ----------------|-------------|----------
-`--tags-input-highlight-color` | Color of the line when the element is focused and of the floating label |  #5264AE
-`--tags-input-tags` | Mixin applied to tag spans | `{}`
+`--derlin-tags-highlight-color` | Color of the line when the element is focused and of the floating label |
+`--paper-indigo-500`
+`--derlin-tags` | Mixin applied to tag spans | `{}`
+`--derlin-tags-bottom-line-color` | color of the bottom line of the input | #757575
 
 @demo demo/index.html
 -->
 
-<dom-module id="polymer-tags-input">
+<dom-module id="derlin-tags-input">
     <template>
         <style>
             :host {
-                --highlight-color: var(-tags-input-highlight-color, #5264AE);
+                --highlight-color: var(--derlin-tags-highlight-color, var(--paper-indigo-500));
                 display: block;
                 padding: 4px;
                 width: 100%;
@@ -46,13 +50,15 @@ Custom property | Description | Default
                 margin-right: 4px;
                 font-size: .94em;
                 display: inline-block;
-                @apply(-tags-input-tags);
+
+                @apply(--derlin-tags);
             }
 
             .tag iron-icon {
                 --iron-icon-height: 17px;
                 --iron-icon-width: 17px;
                 cursor: pointer;
+                color: var(--paper-grey-900);
             }
 
             :host[focused] .tag iron-icon {
@@ -97,7 +103,7 @@ Custom property | Description | Default
                 padding: 10px 10px 10px 5px;
                 display: block;
                 border: none;
-                border-bottom: 1px solid #757575;
+                border-bottom: 1px solid var(--derlin-tags-bottom-line-color, #757575);
             }
 
 
@@ -238,7 +244,7 @@ Custom property | Description | Default
     <script>
         Polymer( {
 
-            is: 'polymer-tags-input',
+            is: 'derlin-tags-input',
 
             properties: {
                 /**

@@ -1,13 +1,14 @@
 {
-  "name": "polymer-tags-input",
+  "name": "derlin-tags-input",
   "description": "an input especially for tags",
-  "main": "polymer-tags-input.html",
+  "main": "derlin-tags-input.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
     "iron-icons": "PolymerElements/iron-icons#^1.1.3",
     "iron-icon": "PolymerElements/iron-icon#^1.0.10",
     "iron-a11y-keys": "PolymerElements/iron-a11y-keys#^1.0.6",
-    "polymer-keydown": "dmytroyarmak/polymer-keydown#^0.1.0"
+    "polymer-keydown": "dmytroyarmak/polymer-keydown#^0.1.0",
+    "paper-styles": "PolymerElements/paper-styles#^1.1.4"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

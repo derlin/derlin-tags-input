@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
-  <head>
-    <title>polymer-tags-input demo</title>
+<head>
+    <title>derlin-tags-input demo</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
@@ -9,56 +9,81 @@
     <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
     <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
 
-    <link rel="import" href="../polymer-tags-input.html">
+    <link rel="import" href="../derlin-tags-input.html">
     <link ref="snippets.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
-  </head>
-  <body>
+</head>
+<body>
 
-    <div class="vertical-section-container centered">
-      <h3>Basic usage</h3>
-      <demo-snippet>
+<div class="vertical-section-container centered">
+    <h3>Basic usage</h3>
+    <demo-snippet>
         Use the <code>tags</code> attribute to bind tags to a custom property.
         You can choose between one-way or two-ways binding.
         <template is="dom-bind">
-          <polymer-tags-input tags="{{tags0}}"></polymer-tags-input>
-          <polymer-tags-input tags="[[tags1]]"></polymer-tags-input>
+            <derlin-tags-input tags="{{tags0}}"></derlin-tags-input>
+            <derlin-tags-input tags="[[tags1]]"></derlin-tags-input>
         </template>
-      </demo-snippet>
+    </demo-snippet>
 
-      <h3>Delimiters</h3>
-      <demo-snippet>
+    <h3>Delimiters</h3>
+    <demo-snippet>
         Use the <code>delimiter</code> attribute to control which key triggers
         the tag processing (default to a comma).
-        <br />
+        <br/>
         <template is="dom-bind">
-          <polymer-tags-input label="space (default)"></polymer-tags-input>  <br />
-          <polymer-tags-input label="comma" delimiter=","></polymer-tags-input> <br />
-          <polymer-tags-input label="hashtag" delimiter="#"></polymer-tags-input> <br />
+            <derlin-tags-input label="space (default)"></derlin-tags-input>
+            <br/>
+            <derlin-tags-input label="comma" delimiter=","></derlin-tags-input>
+            <br/>
+            <derlin-tags-input label="hashtag" delimiter="#"></derlin-tags-input>
+            <br/>
         </template>
-      </demo-snippet>
+    </demo-snippet>
 
-      <h3>SIze and label</h3>
-      <demo-snippet>
-        By default, <code>polymer-tags-input</code> takes all the available space (<code>width: 100%</code>). Use the
+    <h3>SIze and label</h3>
+    <demo-snippet>
+        By default, <code>derlin-tags-input</code> takes all the available space (<code>width: 100%</code>). Use the
         <code>expand</code> attribute to start small and let the input expand as needed.
 
         You can also disable the floating label with the <code>no-floated-label</code> attribute:
         <template>
-          <polymer-tags-input expand label="expandable input"></polymer-tags-input>
-          <polymer-tags-input no-floated-label label="this label does not float"></polymer-tags-input>
+            <derlin-tags-input expand label="expandable input"></derlin-tags-input>
+            <derlin-tags-input no-floated-label label="this label does not float"></derlin-tags-input>
         </template>
-      </demo-snippet>
+    </demo-snippet>
 
-      <h3>Label</h3>
-      <demo-snippet>
-        Use <code>no-floated-label</code> if you don't want the label to float above the input.
+    <h3>Styling</h3>
+    <demo-snippet>
         <template>
-        </template>
-      </demo-snippet>
-    </div>
+            <style is="custom-style">
+                derlin-tags-input.pink {
+                    --derlin-tags-highlight-color: var(--paper-pink-500);
+                    --derlin-tags-input-bottom: var(--paper-pink-100);
+                    --derlin-tags: {
+                        border-color: var(--paper-pink-500);
+                    };
+                }
 
-  </body>
+                derlin-tags-input.funky-tags {
+                    color: var(--paper-amber-800);
+                    --derlin-tags-highlight-color: var(--paper-green-400);
+                    --derlin-tags: {
+                        border: none;
+                        background-color: var(--paper-yellow-200);
+                        color: red;
+                    };
+                }
+            </style>
+
+            <derlin-tags-input class="pink" label="pink power!"></derlin-tags-input>
+            <derlin-tags-input class="funky-tags" label="colorful"></derlin-tags-input>
+
+        </template>
+    </demo-snippet>
+</div>
+
+</body>
 </html>
