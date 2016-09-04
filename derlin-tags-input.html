@@ -218,7 +218,7 @@ Custom property | Description | Default
             }
         </style>
 
-        <iron-a11y-keys id="a11y" target="[[target]]"
+        <iron-a11y-keys id="a11y" target="[[_target]]"
                         keys="[[_a11yDelimiter(delimiter)]]"
                         stop-keyboard-event-propagation="true"
                         on-keys-pressed="_add"></iron-a11y-keys>
@@ -311,6 +311,12 @@ Custom property | Description | Default
                     reflectToAttribute: true
                 },
 
+                _target: {
+                    type: Object,
+                    value: function(){
+                        return this.$.input;
+                    }
+                },
                 /*
                  * Keep track of clicks inside the element. This is important for the focus
                  * to work properly (see _updateFocus).
@@ -379,6 +385,7 @@ Custom property | Description | Default
              * Add a tag (if it does not already exist) and clear the input.
              */
             _add: function( evt, detail ){
+                console.log(evt);
                 detail.keyboardEvent.preventDefault();
 
                 // remove the delimiter from the tag
