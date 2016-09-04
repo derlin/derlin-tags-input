@@ -14,21 +14,40 @@ an input especially for tags
     <template>
         <style>
             :host {
-                display: inline-block;
+                display: block;
                 padding: 4px;
+                width: 100%;
             }
 
             .tag {
-                background-color: cornflowerblue;
-                border-color: black;
-                padding: 2px 4px;
+                baackground-color: white;
+                border: 1px solid #ababab;
+                box-shadow: 2px 3px #eee;
+                border-radius: 5px;
+                padding: 0px 4px 2px 9px;
+                margin-top: 5px;
                 margin-right: 4px;
-                color: white;
+                font-size: .94em;
+                display: inline-block;
+            }
+
+            .tag iron-icon {
+                --iron-icon-height: 17px;
+                --iron-icon-width: 17px;
+                cursor: pointer;
+            }
+
+            :host[focused] .tag iron-icon {
+                color: #5264AE;
+                --iron-icon-height: 15px;
+                --iron-icon-width: 15px;
             }
 
             #input {
                 width: auto;
                 display: inline-block;
+                min-width: 30px;
+                padding-left: 6px;
             }
 
             /* inspired from: https://codepen.io/sevilayha/pen/IdGKH  */
@@ -39,7 +58,13 @@ an input especially for tags
                 min-width: 200px;
                 margin-top: 20px; /* space for the label */
                 display: inline-block;
+                width: 100%;
             }
+
+            :host[expand] .group {
+                width: auto;
+            }
+
 
             #inputGroup {
                 font-size: 18px;
@@ -69,7 +94,7 @@ an input especially for tags
             }
 
             /* active state */
-            :host[focused] .label, :host[with-tags] .label {
+            :host[focused] .label, :host[has-tags] .label {
                 top: -20px;
                 font-size: 14px;
                 color: #5264AE;
@@ -178,7 +203,7 @@ an input especially for tags
 
             <span class="highlight"></span>
             <span class="bar"></span>
-            <span class="label">Name</span>
+            <span class="label">[[label]]</span>
         </div>
 
     </template>
@@ -189,72 +214,72 @@ an input especially for tags
             is: 'polymer-tags-input',
 
             properties: {
+                /**
+                 *  The array of tags. Tags are unique and lowercase.
+                 */
                 tags: {
                     type  : Array,
                     notify: true,
                     value : ["test"]
                 },
 
+                /**
+                 * The label of the input. Labels will always float on focus.
+                 */
+                label: {
+                    type: String,
+                    value: 'Tags'
+                },
+
+                /**
+                 * The delimiter used to detect a new tag. By default, a space will trigger
+                 * a new tag insertion. Important: delimiters are a single character, more complex
+                 * delimiters are not yet supported.
+                 */
                 delimiter: {
                     type : String,
                     value: ","
                 },
 
+                /**
+                 * Whether or not the input is focused (read-only). Will reflect to attribute.
+                 */
                 focused: {
                     type: Boolean,
                     reflectToAttribute: true
                 },
 
-                withTags: {
+                /**
+                 * True if the tags array is not empty (read-only). Will reflect to attribute.
+                 */
+                hasTags: {
                     type: Boolean,
-                    computed: 'hasTags(tags.*)',
+                    computed: 'computeHasTags(tags.*)',
                     reflectToAttribute: true
                 },
 
+                /**
+                 * Use this property to tune the display behavior of the input.
+                 * If set to true, the input will be small at first and grow has needed (width: auto).
+                 * If set to false, the input will always occupy all the available width (width: 100%).
+                 * This property is set once.
+                 */
+                expand: {
+                    type: Boolean,
+                    reflectToAttribute: true
+                },
+
+                /*
+                 * Keep track of clicks inside the element. This is important for the focus
+                 * to work properly (see _updateFocus).
+                 */
                 _clickInProgress: Boolean
             },
 
-            _delete: function( evt ){
-                console.log( "delete", evt );
-                this.splice( 'tags', evt.model.index, 1 );
-            },
-
-            _focus: function( evt ){
-                //console.log(evt);
-                // do nothing if already focused or the click targeted a span.tag
-                //if(!this.focused && evt.path[0] == this.$.inputGroup)
-                this.$.input.focus();
-
-            },
-
-            _deleteLast: function( evt ){
-                if( event.keyCode == 8 && !this.$.input.innerText ){
-                    this.pop( 'tags' );
-                }
-            },
-
-            _mouseDown: function(evt){
-                console.log("click");
-                this._clickInProgress = true;
-
-            },
-
-            _mouseUp: function(evt){
-                console.log("un-click");
-                this._clickInProgress = false;
-
-            },
-
-            _updateFocus: function(evt){
-                console.log(evt.type);
-                if(evt.type == "focus") this.focused = true;
-                else if(!this._clickInProgress) this.focused = false;
-            },
-
-            hasTags: function(){
-                return this.tags && this.tags.length > 0;
-            },
-
+            /*
+             * Called when the element.delimiter is detected in the input.
+             * Add a tag (if it does not already exist) and clear the input.
+             */
             _add: function( evt, detail ){
                 console.log( "add", evt );
 
@@ -264,6 +289,76 @@ an input especially for tags
                 console.log( "newtag", newTag );
                 if( newTag && this.tags.indexOf( newTag ) == -1 ) this.push( 'tags', newTag );
                 this.$.input.innerText = "";
+            },
+
+            /*
+             * Called when a tag clear icon is clicked. Remove the tag from the tags array.
+             */
+            _delete: function( evt ){
+                console.log( "delete", evt );
+                this.splice( 'tags', evt.model.index, 1 );
+            },
+
+            /*
+             * Called when a click occurs inside the shadow dom.
+             * Gives focus to the input.
+             */
+            _focus: function( evt ){
+                //console.log(evt);
+                // do nothing if already focused or the click targeted a span.tag
+                //if(!this.focused && evt.path[0] == this.$.inputGroup)
+                this.$.input.focus();
+
+            },
+
+            /*
+             * Called on keydown. If the backspace (keycode: 8) is pressed, remove
+             * the last tag from the tags array.
+             */
+            _deleteLast: function( evt ){
+                if( event.keyCode == 8 && !this.$.input.innerText ){
+                    this.pop( 'tags' );
+                }
+            },
+
+            /*
+             * Called on input::focus() and input::blur(). Keep track of the focus
+             * state of the input and update the host.focus property.
+             * Note that blur is called whenever there is a mouse down. It is thus
+             * important to ignore the event if the mouse is still inside the host
+             * (_clickInProgress), to avoid focus/blur/focus sequence (weird visual effect).
+             */
+            _updateFocus: function(evt){
+                console.log(evt.type);
+                if(evt.type == "focus") this.focused = true;
+                else if(!this._clickInProgress) this.focused = false;
+            },
+
+            /*
+             * Keep track of clicks inside the element. This is important for the focus
+             * to work properly (see _updateFocus).
+             */
+            _mouseDown: function(evt){
+                console.log("click");
+                this._clickInProgress = true;
+
+            },
+
+            /*
+             * Keep track of clicks inside the element. This is important for the focus
+             * to work properly (see _updateFocus).
+             */
+            _mouseUp: function(evt){
+                console.log("un-click");
+                this._clickInProgress = false;
+
+            },
+
+            /*
+             * Computes the element.hasTags property based on the tags array length.
+             */
+            computeHasTags: function(){
+                return this.tags && this.tags.length > 0;
             },
 
 
