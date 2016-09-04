@@ -2,25 +2,42 @@
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
-<link ref="import" href="../polymer-keydown/polymer-keydown.html"
+<link ref="import" href="../polymer-keydown/polymer-keydown.html">
 <!--
-`polymer-tags-input`
-an input especially for tags
+`polymer-tags-input` is an input element especially made for tags.
 
-@demo demo/index.html 
+It is inspired by the <a href="https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/">bootstrap tags
+input</a> and such.
+
+
+### Styling
+
+`<polymer-tags-input>` provides the following custom properties and mixins
+for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--tags-input-highlight-color` | Color of the line when the element is focused and of the floating label |  #5264AE
+`--tags-input-tags` | Mixin applied to tag spans | `{}`
+
+@demo demo/index.html
 -->
 
 <dom-module id="polymer-tags-input">
     <template>
         <style>
             :host {
+                --highlight-color: var(-tags-input-highlight-color, #5264AE);
                 display: block;
                 padding: 4px;
                 width: 100%;
             }
 
+            :host[expand] {
+                width: auto;
+            }
+
             .tag {
-                baackground-color: white;
                 border: 1px solid #ababab;
                 box-shadow: 2px 3px #eee;
                 border-radius: 5px;
@@ -29,6 +46,7 @@ an input especially for tags
                 margin-right: 4px;
                 font-size: .94em;
                 display: inline-block;
+                @apply(-tags-input-tags);
             }
 
             .tag iron-icon {
@@ -38,7 +56,7 @@ an input especially for tags
             }
 
             :host[focused] .tag iron-icon {
-                color: #5264AE;
+                color: var(--highlight-color);
                 --iron-icon-height: 15px;
                 --iron-icon-width: 15px;
             }
@@ -47,18 +65,26 @@ an input especially for tags
                 width: auto;
                 display: inline-block;
                 min-width: 30px;
-                padding-left: 6px;
+                padding: 6px 0 3px 6px;
+            }
+
+            #input:focus {
+                outline: none;
             }
 
             /* inspired from: https://codepen.io/sevilayha/pen/IdGKH  */
 
             .group {
                 position: relative;
-                margin-bottom: 45px;
+                margin-bottom: 5px;
                 min-width: 200px;
-                margin-top: 20px; /* space for the label */
                 display: inline-block;
+                margin-top: 20px; /* space for the label */
                 width: 100%;
+            }
+
+            :host[no-floated-label] {
+                margin-top: 5px;
             }
 
             :host[expand] .group {
@@ -74,9 +100,6 @@ an input especially for tags
                 border-bottom: 1px solid #757575;
             }
 
-            #input:focus {
-                outline: none;
-            }
 
             /* LABEL ======================================= */
 
@@ -93,11 +116,16 @@ an input especially for tags
                 -webkit-transition: 0.2s ease all;
             }
 
+            :host[no-floated-label][focused] .label, :host[no-floated-label][has-tags] .label {
+                top: 0;
+                display: none;
+            }
+
             /* active state */
             :host[focused] .label, :host[has-tags] .label {
                 top: -20px;
                 font-size: 14px;
-                color: #5264AE;
+                color: var(--highlight-color);
             }
 
             /* BOTTOM BARS ================================= */
@@ -113,7 +141,7 @@ an input especially for tags
                 width: 0;
                 bottom: 1px;
                 position: absolute;
-                background: #5264AE;
+                background: var(--highlight-color);
                 transition: 0.2s ease all;
                 -moz-transition: 0.2s ease all;
                 -webkit-transition: 0.2s ease all;
@@ -155,7 +183,7 @@ an input especially for tags
 
             @-webkit-keyframes inputHighlighter {
                 from {
-                    background: #5264AE;
+                    background: var(--highlight-color);
                 }
                 to {
                     width: 0;
@@ -165,7 +193,7 @@ an input especially for tags
 
             @-moz-keyframes inputHighlighter {
                 from {
-                    background: #5264AE;
+                    background: var(--highlight-color);
                 }
                 to {
                     width: 0;
@@ -175,7 +203,7 @@ an input especially for tags
 
             @keyframes inputHighlighter {
                 from {
-                    background: #5264AE;
+                    background: var(--highlight-color);
                 }
                 to {
                     width: 0;
@@ -185,7 +213,7 @@ an input especially for tags
         </style>
 
         <iron-a11y-keys id="a11y" target="[[target]]"
-                        keys="[[delimiter]]"
+                        keys="[[_a11yDelimiter(delimiter)]]"
                         stop-keyboard-event-propagation="true"
                         on-keys-pressed="_add"></iron-a11y-keys>
 
@@ -205,7 +233,6 @@ an input especially for tags
             <span class="bar"></span>
             <span class="label">[[label]]</span>
         </div>
-
     </template>
 
     <script>
@@ -220,7 +247,7 @@ an input especially for tags
                 tags: {
                     type  : Array,
                     notify: true,
-                    value : ["test"]
+                    value : function() { return []; }
                 },
 
                 /**
@@ -232,14 +259,23 @@ an input especially for tags
                 },
 
                 /**
+                 * Whether or not the label should float above the input.
+                 */
+                noFloatedLabel: {
+                    type: Boolean,
+                    reflectToAttribute: true
+                },
+
+                /**
                  * The delimiter used to detect a new tag. By default, a space will trigger
                  * a new tag insertion. Important: delimiters are a single character, more complex
                  * delimiters are not yet supported.
                  */
                 delimiter: {
                     type : String,
-                    value: ","
+                    value: " "
                 },
+
 
                 /**
                  * Whether or not the input is focused (read-only). Will reflect to attribute.
@@ -277,6 +313,62 @@ an input especially for tags
             },
 
             /*
+             * Just in case, ensure that tags is indeed an array.
+             */
+            ready: function(){
+                if(this.tags == null || this.tags == undefined){
+                    console.log("tags not properly initialized");
+                    this.tags = [];
+                }
+            },
+
+            /**
+             * Add a tag from the tags array.
+             *
+             * @param {String} tag The tag to add.
+             * @return {boolean} True if the tag was added, false if it already existed.
+             */
+            add: function(tag){
+                tag = tag.trim().toLowerCase();
+                if(this.tags.indexOf( tag ) == -1 ){
+                    this.push( 'tags', tag );
+                    return true;
+                }
+                return false;
+            },
+
+
+            /**
+             * Remove a tag from the tags array, either by its name or by its index.
+             *
+             * @param {String} tag The tag to remove.
+             * @param {number} The index of the tag.
+
+             * @return {boolean} True if the tag was removed, false if it was not found.
+             */
+            delete: function(tag, index){
+                console.log("delete", tag, index);
+                if(tag){
+                    tag = tag.trim().toLowerCase();
+                    index = this.tags.indexOf(tag);
+                    if(index < 0) return false;
+                }else if(index >= 0 && index < this.tags.length){
+                    this.splice( 'tags', index, 1 );
+                    return true;
+                }
+
+                return false;
+            },
+
+            /*
+             * Map " " delimiter to space for the a11y-iron-key component.
+             */
+            _a11yDelimiter: function(delimiter) {
+                return this.delimiter == " " ? "space" : this.delimiter;
+            },
+
+
+            /*
              * Called when the element.delimiter is detected in the input.
              * Add a tag (if it does not already exist) and clear the input.
              */
@@ -285,9 +377,10 @@ an input especially for tags
 
                 detail.keyboardEvent.preventDefault();
 
-                var newTag = this.$.input.innerText.replace( this.delimiter, "" ).toLowerCase();
+                // remove the delimiter from the tag
+                var newTag = this.$.input.innerText.replace( this.delimiter, "" );
                 console.log( "newtag", newTag );
-                if( newTag && this.tags.indexOf( newTag ) == -1 ) this.push( 'tags', newTag );
+                this.add(newTag);
                 this.$.input.innerText = "";
             },
 
@@ -296,7 +389,17 @@ an input especially for tags
              */
             _delete: function( evt ){
                 console.log( "delete", evt );
-                this.splice( 'tags', evt.model.index, 1 );
+                this.delete( null, evt.model.index );
+            },
+
+            /*
+             * Called on keydown. If the backspace (keycode: 8) is pressed, remove
+             * the last tag from the tags array.
+             */
+            _deleteLast: function( evt ){
+                if( event.keyCode == 8 && !this.$.input.innerText ){
+                    this.pop( 'tags' );
+                }
             },
 
             /*
@@ -309,16 +412,6 @@ an input especially for tags
                 //if(!this.focused && evt.path[0] == this.$.inputGroup)
                 this.$.input.focus();
 
-            },
-
-            /*
-             * Called on keydown. If the backspace (keycode: 8) is pressed, remove
-             * the last tag from the tags array.
-             */
-            _deleteLast: function( evt ){
-                if( event.keyCode == 8 && !this.$.input.innerText ){
-                    this.pop( 'tags' );
-                }
             },
 
             /*

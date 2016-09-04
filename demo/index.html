@@ -10,6 +10,7 @@
     <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
 
     <link rel="import" href="../polymer-tags-input.html">
+    <link ref="snippets.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
@@ -17,10 +18,44 @@
   <body>
 
     <div class="vertical-section-container centered">
-      <h3>Basic polymer-tags-input Demo</h3>
+      <h3>Basic usage</h3>
       <demo-snippet>
+        Use the <code>tags</code> attribute to bind tags to a custom property.
+        You can choose between one-way or two-ways binding.
+        <template is="dom-bind">
+          <polymer-tags-input tags="{{tags0}}"></polymer-tags-input>
+          <polymer-tags-input tags="[[tags1]]"></polymer-tags-input>
+        </template>
+      </demo-snippet>
+
+      <h3>Delimiters</h3>
+      <demo-snippet>
+        Use the <code>delimiter</code> attribute to control which key triggers
+        the tag processing (default to a comma).
+        <br />
+        <template is="dom-bind">
+          <polymer-tags-input label="space (default)"></polymer-tags-input>  <br />
+          <polymer-tags-input label="comma" delimiter=","></polymer-tags-input> <br />
+          <polymer-tags-input label="hashtag" delimiter="#"></polymer-tags-input> <br />
+        </template>
+      </demo-snippet>
+
+      <h3>SIze and label</h3>
+      <demo-snippet>
+        By default, <code>polymer-tags-input</code> takes all the available space (<code>width: 100%</code>). Use the
+        <code>expand</code> attribute to start small and let the input expand as needed.
+
+        You can also disable the floating label with the <code>no-floated-label</code> attribute:
         <template>
-          <polymer-tags-input></polymer-tags-input>
+          <polymer-tags-input expand label="expandable input"></polymer-tags-input>
+          <polymer-tags-input no-floated-label label="this label does not float"></polymer-tags-input>
+        </template>
+      </demo-snippet>
+
+      <h3>Label</h3>
+      <demo-snippet>
+        Use <code>no-floated-label</code> if you don't want the label to float above the input.
+        <template>
         </template>
       </demo-snippet>
     </div>
